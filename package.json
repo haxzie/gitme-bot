@@ -4,9 +4,9 @@
   "description": "A Probot app to manage the GitMe Repositories",
   "author": "Musthaq Ahamad <musthu.gm@gmail.com> (https://github.com/haxzie/gitme-bot)",
   "license": "ISC",
-  "repository": "https://github.com//gitme-bot.git",
-  "homepage": "https://github.com//gitme-bot",
-  "bugs": "https://github.com//gitme-bot/issues",
+  "repository": "https://github.com/haxzie/gitme-bot.git",
+  "homepage": "https://github.com/haxzie/gitme-bot",
+  "bugs": "https://github.com/haxzie/gitme-bot/issues",
   "keywords": [
     "probot",
     "github",
