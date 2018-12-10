@@ -1,4 +1,6 @@
 const axios = require('axios');
+const cStrings = require('./lib/loadStrings')();
+const checker = require('./lib/markdownChecker');
 
 module.exports = app => {
   app.log('Yay, the app was loaded!');
@@ -17,13 +19,6 @@ module.exports = app => {
   app.on('check_suite.completed', async context => {
     const checkSuite = context.payload.check_suite;
     const sender = context.payload.sender.login;
-    const config = await context.config('strings.yml');
-
-    if (!config) {
-      console.error(`Unable to retrieve config file from github, 
-      make sure strings.yml file exists in .github sub directory`);
-      return;
-    }
 
     // check if the checks result is success
     if (checkSuite.conclusion !== "success") {
@@ -38,15 +33,14 @@ module.exports = app => {
 
     console.log(`Adding Comment on Pull Request #${pullRequestNumber}`);
     let deployURL = `https://deploy-preview-${pullRequestNumber}--gitme.netlify.com/`;
-    let commentBody = config.checksPassed;
+    let commentBody = cStrings.checksPassed;
     commentBody.replace(/{deployURL}/g, deployURL);
 
-    const prComment = context.issue({
+    // create the deploy preview comment
+    context.github.issues.createComment(context.issue({
       number: pullRequestNumber,
       body: commentBody
-    });
-    // create the deploy preview comment
-    context.github.issues.createComment(prComment);
+    }));
 
     // Download the changed file and initialize checks
     console.log("Initialize file checks...");
@@ -63,6 +57,55 @@ module.exports = app => {
           // retrieve the file and check
           const contents = await axios.get(file.raw_url);
           console.log(contents.data);
+          let check_results = checker(contents.data, sender);
+          context.github.issues.createComment(context.issue({
+            number: pullRequestNumber,
+            body: check_results.message
+          }));
+
+          // Okay this is kinda wiered API response here
+          // the request will result in 404 if the PR isn't merged
+          // and 204 if the PR is merged
+          if (check_results.merge) {
+            try {
+              let isMerged = await context.github.pullRequests.checkIfMerged(context.issue({
+                number: pullRequestNumber
+              }));
+              console.log("Pull request already merged")
+            } catch (error) {
+              console.log("Pull request not merged");
+              // Let's merge it! Yaay
+              try {
+
+                // Status 200 if merged, else unable to merge 
+                await context.github.pullRequests.merge(context.issue({
+                  number: pullRequestNumber
+                }));
+
+                console.log("Successfully merged the PullRequest!")
+                console.log("Sending Congratulations!")
+                let message = cStrings.successfullyMerged.replace(/{username}/g, sender)
+                context.github.issues.createComment(context.issue({
+                  number: pullRequestNumber,
+                  body: message
+                }));
+
+
+              }catch(error) {
+
+                // Unable to merge the PR, maybe a merge conflict.
+                // https://developer.github.com/v3/pulls/#get-if-a-pull-request-has-been-merged
+                console.log(error);
+                console.log(JSON.stringify(error));
+                let message = cString.unableToMergePR;
+                context.github.issues.createComment(context.issue({
+                  number: pullRequestNumber,
+                  body: message
+                }));
+              }
+              
+            }
+          }
 
         }
       }
