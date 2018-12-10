@@ -1,17 +1,29 @@
+const axios = require('axios');
+
 module.exports = app => {
-  app.log('Yay, the app was loaded!')
+  app.log('Yay, the app was loaded!');
 
   app.on('issues.opened', async context => {
-    const issueComment = context.issue({ body: 'Thanks for opening this issue!' })
+    const issueComment = context.issue({
+      body: 'Thanks for opening this issue!'
+    })
     return context.github.issues.createComment(issueComment)
-  })
+  });
 
-  app.on('status',  async context => {
+  app.on('status', async context => {
     //console.log(JSON.stringify(context));
   });
 
   app.on('check_suite.completed', async context => {
     const checkSuite = context.payload.check_suite;
+    const sender = context.payload.sender.login;
+    const config = await context.config('strings.yml');
+
+    if (!config) {
+      console.error(`Unable to retrieve config file from github, 
+      make sure strings.yml file exists in .github sub directory`);
+      return;
+    }
 
     // check if the checks result is success
     if (checkSuite.conclusion !== "success") {
@@ -23,11 +35,15 @@ module.exports = app => {
     console.log("CheckSuite Success. Creating deploy URL comment...");
     //get the PR Number
     const pullRequestNumber = checkSuite.pull_requests[0].number;
+
     console.log(`Adding Comment on Pull Request #${pullRequestNumber}`);
     let deployURL = `https://deploy-preview-${pullRequestNumber}--gitme.netlify.com/`;
-    const prComment = context.issue({ 
+    let commentBody = config.checksPassed;
+    commentBody.replace(/{deployURL}/g, deployURL);
+
+    const prComment = context.issue({
       number: pullRequestNumber,
-      body: `Awesome! All checks green :heavy_check_mark:. Checkout the latest [deploy preview](${deployURL}) of this Pull Request.`
+      body: commentBody
     });
     // create the deploy preview comment
     context.github.issues.createComment(prComment);
@@ -40,16 +56,17 @@ module.exports = app => {
     }));
 
     if (filesResponse && filesResponse.status === 200) {
-      let files = filesResponse.data.map(file => {
-        if (file.filename.match(/src\/profiles\//g)) {
-          return file;
-        } 
-      });
 
-      
+      if (filesResponse.data.length == 1) {
+        let file = filesResponse.data[0];
+        if (file.filename.match(/^src\/profiles\//g)) {
+          // retrieve the file and check
+          const contents = await axios.get(file.raw_url);
+          console.log(contents.data);
+
+        }
+      }
+
     }
-
-
-    console.log(fileResp);
-  })
+  });
 }
