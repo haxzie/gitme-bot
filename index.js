@@ -5,10 +5,14 @@ const checker = require('./lib/markdownChecker');
 module.exports = app => {
   app.log('Yay, the app was loaded!');
 
+  // comment when new issue is opened
   app.on('issues.opened', async context => {
     const issueComment = context.issue({
-      body: 'Thanks for opening this issue!'
+      body: cStrings.newIssue
     })
+    await context.github.issues.addLabels(context.issue({
+      labels: ["Waiting"]
+    }));
     return context.github.issues.createComment(issueComment)
   });
 
