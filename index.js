@@ -11,7 +11,7 @@ module.exports = app => {
       body: cStrings.newIssue
     })
     await context.github.issues.addLabels(context.issue({
-      labels: ["Waiting"]
+      labels: ["Awaiting Review"]
     }));
     return context.github.issues.createComment(issueComment)
   });

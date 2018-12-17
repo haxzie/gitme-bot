@@ -4,13 +4,24 @@
 
 ## Setup
 
-```sh
+```shell
 # Install dependencies
 npm install
 
 # Run the bot
 npm start
 ```
+
+## Deploying
+
+### With available Environment variables
+Install the [now.sh CLI](https://github.com/zeit/now-cli), from the project folder Run...
+```shell
+$ now --dotenv=.env
+```
+
+### Fresh Installation
+Simply run `$ now` from the project directory and goto the deployment website to complete the installation.
 
 ## Contributing
 
