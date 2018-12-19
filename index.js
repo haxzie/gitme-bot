@@ -1,6 +1,8 @@
 const axios = require('axios');
-const cStrings = require('./lib/loadStrings')();
 const checker = require('./lib/markdownChecker');
+const { Wring } = require('wring-js');
+const wring = new Wring();
+const strings = wring.load('lib/strings.yml');
 
 module.exports = app => {
   app.log('Yay, the app was loaded!');
@@ -8,7 +10,7 @@ module.exports = app => {
   // comment when new issue is opened
   app.on('issues.opened', async context => {
     const issueComment = context.issue({
-      body: cStrings.newIssue
+      body: strings.get('newIssue')
     })
     await context.github.issues.addLabels(context.issue({
       labels: ["Awaiting Review"]
@@ -36,9 +38,8 @@ module.exports = app => {
     const pullRequestNumber = checkSuite.pull_requests[0].number;
 
     console.log(`Adding Comment on Pull Request #${pullRequestNumber}`);
-    let deployURL = `https://deploy-preview-${pullRequestNumber}--gitme.netlify.com/`;
-    let commentBody = cStrings.checksPassed;
-    commentBody.replace(/{deployURL}/g, deployURL);
+    let deployURL = strings.with('deployURL').format({ number: pullRequestNumber });
+    let commentBody = strings.with('checksPassed').format({ deployURL: deployURL });
 
     // create the deploy preview comment
     context.github.issues.createComment(context.issue({
@@ -88,7 +89,9 @@ module.exports = app => {
 
                 console.log("Successfully merged the PullRequest!")
                 console.log("Sending Congratulations!")
-                let message = cStrings.successfullyMerged.replace(/{username}/g, sender)
+
+                let message = strings.with('successfullyMerged').format({ username: sender });
+
                 context.github.issues.createComment(context.issue({
                   number: pullRequestNumber,
                   body: message
@@ -101,7 +104,7 @@ module.exports = app => {
                 // https://developer.github.com/v3/pulls/#get-if-a-pull-request-has-been-merged
                 console.log(error);
                 console.log(JSON.stringify(error));
-                let message = cString.unableToMergePR;
+                let message = strings.get('unableToMergePR');
                 context.github.issues.createComment(context.issue({
                   number: pullRequestNumber,
                   body: message

@@ -1,9 +1,9 @@
 checksPassed: |
   Awesome! All checks green :heavy_check_mark:
-  Checkout the latest [deploy preview]({deployURL}) of this Pull Request.
+  Checkout the latest [deploy preview]({{deployURL}}) of this Pull Request.
 
 invalidFormat: |
-  Hey @{username}, it seems like the data in the markdown file doesn't match the specified format.
+  Hey @{{username}}, it seems like the data in the markdown file doesn't match the specified format.
   Please check the file you have edited/added to be in the following format (including the starting and trailing hyphens).
   ```
   ---
@@ -12,19 +12,19 @@ invalidFormat: |
   ---
   ```
 invalidUsername: |
-  Oops! @{username}, I think the username or the fullname you provided contains invalid characters.
+  Oops! @{{username}}, I think the username or the fullname you provided contains invalid characters.
   please double check the markdown file for any possible mistakes in your `username` or `fullname`
     
 mismatchInUsername: |
-  @{username} It looks like you have given a different GitHub username in your file.
-  Please ensure that the username you have provided matches your current GitHub username. ie. `{username}`
+  @{{username}} It looks like you have given a different GitHub username in your file.
+  Please ensure that the username you have provided matches your current GitHub username. ie. `{{username}}`
   It should look like this,
   ```
-  username: {username}
+  username: {{username}}
   ```
 
 emptyFile: |
-  Hey @{username}, I tried using my glasses, but I couldn't find anything on your file.
+  Hey @{{username}}, I tried using my glasses, but I couldn't find anything on your file.
 
 readyToMerge: |
   Way to Go! All checks passed and Everything looks good to me.
@@ -34,10 +34,11 @@ unableToMergePR: |
   Uh oh! Something doesn't look right, maybe a conflict? @haxzie, we need some here! :rotating_light:
 
 successfullyMerged: |
-  Holy Buckets! Congratulations @{username}, You got your PR merged!
+  Holy Buckets! Congratulations @{{username}}, You got your PR merged!
   Find yourself in the [submissions page of our website](https://gitme.js.org/submissions/). Please don't forget to leave a star and share this with your friends :heart:
   
   ![](https://media.giphy.com/media/wZjlCH43M3M0U/giphy.gif)
 
 newIssue: |
   Thanks for opening this issue, a maintainer will be one his way to help you out in this :+1:
+deployURL: https://deploy-preview-{{number}}--gitme.netlify.com/
