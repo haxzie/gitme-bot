@@ -1,8 +1,9 @@
 const axios = require('axios');
 const checker = require('./lib/markdownChecker');
+const path = require('path');
+
 const { Wring } = require('wring-js');
 const wring = new Wring();
-const strings = wring.load('lib/strings.yml');
 
 module.exports = app => {
   app.log('Yay, the app was loaded!');
