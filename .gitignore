@@ -3,3 +3,4 @@ node_modules
 .env.production
 package-lock.json
 cache
+now.json
