@@ -22,7 +22,8 @@
   "dependencies": {
     "axios": "^0.18.0",
     "js-yaml": "^3.12.0",
-    "probot": "^7.4.0"
+    "probot": "^7.4.0",
+    "wring-js": "0.0.2"
   },
   "devDependencies": {
     "jest": "^22.4.3",
