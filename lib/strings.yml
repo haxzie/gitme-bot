@@ -1,3 +1,7 @@
+newSubmission: |
+  Hey @{{username}}! Thanks for opening the pull request, I'll be reviewing your PR for any mistakes and will let you know if any changes are required.
+  Hang tight while the checks get passed and once the review is complete, I'll be merging your PR.
+
 checksPassed: |
   Awesome! All checks green :heavy_check_mark:
   Checkout the latest [deploy preview]({{deployURL}}) of this Pull Request.

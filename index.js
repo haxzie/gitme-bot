@@ -1,7 +1,9 @@
 const axios = require('axios');
 const checker = require('./lib/markdownChecker');
 
-const { Wring } = require('wring-js');
+const {
+  Wring
+} = require('wring-js');
 const wring = new Wring();
 const strings = wring.load('./lib/strings.yml', __dirname);
 
@@ -12,15 +14,50 @@ module.exports = app => {
   app.on('issues.opened', async context => {
     const issueComment = context.issue({
       body: strings.get('newIssue')
-    })
+    });
     await context.github.issues.addLabels(context.issue({
       labels: ["Awaiting Review"]
     }));
-    return context.github.issues.createComment(issueComment)
+    return context.github.issues.createComment(issueComment);
   });
 
   app.on('status', async context => {
     //console.log(JSON.stringify(context));
+  });
+
+  app.on('pull_request.opened', async context => {
+    
+    const pullRequest = context.payload.pull_request;
+    const creator = pullRequest.user.login;
+    const number = pullRequest.number;
+
+    // get the changed file
+    const filesResponse = await context.github.pullRequests.listFiles(context.issue({
+      number: number
+    }));
+
+    if (filesResponse.data.length == 1) {
+      let file = filesResponse.data[0];
+      // Pull request is added for profile submission, add the label
+      if (file.filename.match(/^src\/profiles\//g)) {
+
+        // Add submission label to the Pull request
+        await context.github.issues.addLabels(context.issue({
+          labels: ["submission"],
+          number: number
+        }));
+
+        // Add a comment on the pull request
+        const submissionComment = context.issue({
+          body: strings.with('newSubmission').format({ username: creator })
+        });
+        return context.github.issues.createComment(submissionComment);
+      }
+    }
+  });
+
+  app.on('pull_request.merged', async context => {
+
   });
 
   app.on('check_suite.completed', async context => {
@@ -39,8 +76,12 @@ module.exports = app => {
     const pullRequestNumber = checkSuite.pull_requests[0].number;
 
     console.log(`Adding Comment on Pull Request #${pullRequestNumber}`);
-    let deployURL = strings.with('deployURL').format({ number: pullRequestNumber });
-    let commentBody = strings.with('checksPassed').format({ deployURL: deployURL });
+    let deployURL = strings.with('deployURL').format({
+      number: pullRequestNumber
+    });
+    let commentBody = strings.with('checksPassed').format({
+      deployURL: deployURL
+    });
 
     // create the deploy preview comment
     context.github.issues.createComment(context.issue({
@@ -91,7 +132,9 @@ module.exports = app => {
                 console.log("Successfully merged the PullRequest!")
                 console.log("Sending Congratulations!")
 
-                let message = strings.with('successfullyMerged').format({ username: sender });
+                let message = strings.with('successfullyMerged').format({
+                  username: sender
+                });
 
                 context.github.issues.createComment(context.issue({
                   number: pullRequestNumber,
@@ -99,7 +142,7 @@ module.exports = app => {
                 }));
 
 
-              }catch(error) {
+              } catch (error) {
 
                 // Unable to merge the PR, maybe a merge conflict.
                 // https://developer.github.com/v3/pulls/#get-if-a-pull-request-has-been-merged
@@ -111,7 +154,7 @@ module.exports = app => {
                   body: message
                 }));
               }
-              
+
             }
           }
 
