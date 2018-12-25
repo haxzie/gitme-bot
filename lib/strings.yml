@@ -3,8 +3,7 @@ newSubmission: |
   Hang tight while the checks get passed and once the review is complete, I'll be merging your PR.
 
 checksPassed: |
-  Awesome! All checks green :heavy_check_mark:
-  Checkout the latest [deploy preview]({{deployURL}}) of this Pull Request.
+  [deploy preview]({{deployURL}}) ready!
 
 invalidFormat: |
   Hey @{{username}}, it seems like the data in the markdown file doesn't match the specified format.
@@ -38,8 +37,7 @@ unableToMergePR: |
   Uh oh! Something doesn't look right, maybe a conflict? @haxzie, we need some here! :rotating_light:
 
 successfullyMerged: |
-  Holy Buckets! Congratulations @{{username}}, You got your PR merged!
-  Find yourself in the [submissions page of our website](https://gitme.js.org/submissions/). Please don't forget to leave a star and share this with your friends :heart:
+  Holy Buckets! Congratulations @{{username}}, this PR has been merged!
   
   ![](https://media.giphy.com/media/wZjlCH43M3M0U/giphy.gif)
 
